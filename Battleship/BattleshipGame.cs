@@ -114,6 +114,19 @@ namespace Battleship
         ///</summary>
         public int P2HitLimit;
 
+        // Property to track the current type of shot selected by the player.
+        public ShotType CurrentShotType { get; set; } = ShotType.Normal;
+
+        // Enum to define different types of shots available in the game
+        public enum ShotType
+        {
+            Normal,          // Standard shot that targets a single tile
+            Bomb3x3,         // Bomb that affects a 3x3 area
+            VerticalStrip,   // Shot that affects a vertical line through the grid
+            HorizontalStrip  // Shot that affects a horizontal line through the grid
+        }
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BattleshipGame"/> class.
         ///</summary>
@@ -123,6 +136,14 @@ namespace Battleship
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
+
+        // Method to change shot type based on input
+        public void ChangeShotType(ShotType newType)
+        {
+            CurrentShotType = newType;
+            // Optionally, add any logic here that needs to run when shot type changes, like UI updates or sound effects
+        }
+
 
         /// <summary>
         /// Textures and fonts used while switching players - Added by Mikey (Sep 22)
@@ -225,6 +246,18 @@ namespace Battleship
         /// <param name="gameTime">The current game time.</param>
         protected override void Update(GameTime gameTime)
         {
+            // Get the  current state of the keyboard
+            KeyboardState state = Keyboard.GetState();
+
+            // Check for key presses to change the shot type
+            if (state.IsKeyDown(Keys.D1))
+                ChangeShotType(ShotType.Normal); // Press '1' for a normal shot
+            if (state.IsKeyDown(Keys.D2))
+                ChangeShotType(ShotType.Bomb3x3); // Press '2' for a 3x3 bomb
+            if (state.IsKeyDown(Keys.D3))
+                ChangeShotType(ShotType.VerticalStrip); // Press '3' for a vertical strip bomb
+            if (state.IsKeyDown(Keys.D4))
+                ChangeShotType(ShotType.HorizontalStrip); // Press '4' for a horizontal strip bomb
             // Exit the game if the back button is pressed or the escape key is pressed.
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -517,7 +550,7 @@ namespace Battleship
                     // Shoot the tile for the player whose turn it is.
                     if (_turnManager!.IsP1sTurn)
                     {
-                        success = _player2grid!.Shoot();
+                        success = _player2grid!.ShootAt();
                         if (success == true)
                         {
                             P2HitLimit = P2HitLimit - 1; // Decrement the hit limit for player 2 if the shot was successful.
@@ -525,7 +558,7 @@ namespace Battleship
                     }
                     else
                     {
-                        success = _player1grid!.Shoot();
+                        success = _player1grid!.ShootAt();
                         if (success == true)
                         {
                             P1HitLimit = P1HitLimit - 1; // Decrement the hit limit for player 1 if the shot was successful.

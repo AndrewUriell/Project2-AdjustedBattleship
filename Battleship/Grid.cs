@@ -19,6 +19,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static Battleship.BattleshipGame;
 
 namespace Battleship
 {
@@ -250,34 +251,73 @@ namespace Battleship
         /// <returns>
         /// True if the GridTile clicked on is a hit, return False if it is a miss, return null if the current tile has already been shot, is null, or isn't on the 10x10 grid.
         ///</returns>
-        public bool? Shoot()
+        public bool? ShootAt(int x, int y, ShotType shotType)
         {
-            if (CurrentTile is null)
-                return null;
-
-            // Only allow shooting on the 10x10 grid.
-            if (!CurrentTile.CanSelect)
-                return null;
-
-            // Don't allow shooting the same spot again.
-            if (CurrentTile.IsShot)
-                return null;
-            else
+            switch (shotType)
             {
-                // Mark the tile as shot and change the texture to show the result of the shot.
-                CurrentTile.IsShot = true;
-                if (CurrentTile.HasShip)
-                {
-                    CurrentTile.IsHit = true;
-                    CurrentTile.GridTexture = SquareHitTexture;
-                    return true;
-                }
-                else
-                {
-                    CurrentTile.GridTexture = SquareMissedTexture;
-                    return false;
-                }
+                case ShotType.Normal:
+                    return ShootSingle(x, y);
+                case ShotType.Bomb3x3:
+                    return Shoot3x3(x, y);
+                case ShotType.VerticalStrip:
+                    return ShootVerticalStrip(x);
+                case ShotType.HorizontalStrip:
+                    return ShootHorizontalStrip(y);
+                default:
+                    return null;
             }
         }
+
+        private bool? ShootSingle(int x, int y)
+        {
+            // Implement shooting a single tile
+            return GridArray[x, y].Shoot();
+        }
+
+        private bool Shoot3x3(int x, int y)
+        {
+            bool hit = false;
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    int nx = x + dx;
+                    int ny = y + dy;
+                    if (nx >= 0 && nx < GridArray.GetLength(0) && ny >= 0 && ny < GridArray.GetLength(1))
+                    {
+                        // Directly use the return value since it's not nullable
+                        hit |= GridArray[nx, ny].Shoot();
+                    }
+                }
+            }
+            return hit;
+        }
+
+
+
+        private bool ShootVerticalStrip(int x)
+        {
+            bool hit = false;
+            for (int y = 0; y < GridArray.GetLength(1); y++)
+            {
+                // Directly use the return value since it's not nullable
+                hit |= GridArray[x, y].Shoot();
+            }
+            return hit;
+        }
+
+
+        private bool ShootHorizontalStrip(int y)
+        {
+            bool hit = false;
+            for (int x = 0; x < GridArray.GetLength(0); x++)
+            {
+                // Directly use the return value since it's not nullable
+                hit |= GridArray[x, y].Shoot();
+            }
+            return hit;
+        }
+
     }
 }
+

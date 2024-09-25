@@ -21,6 +21,22 @@ namespace Battleship
 {
     public class Ship
     {
+
+        public int HitCount { get; private set; }  // Tracks number of hits
+        public int Size { get; }                   // Total size of the ship
+
+        public void Hit()
+        {
+            HitCount++;
+            if (HitCount >= Size)
+                Sunk();  // Call some method to handle the ship being sunk
+        }
+
+        private void Sunk()
+        {
+            // Additional logic when the ship is sunk
+            Console.WriteLine("Ship sunk!");
+        }
         /// <summary>
         /// The rectangle object that stores the texture.
         /// </summary>

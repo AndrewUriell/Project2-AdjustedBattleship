@@ -79,6 +79,24 @@ namespace Battleship
         /// </summary>
         /// <param name="squareCoord">The X coordinate of this tile</param>
         /// <param name="shipSize">The currently selected ship size.</param>
+        
+        public bool Shoot()
+        {
+            if (IsHit)  // Check if the tile has already been hit
+                return false;  // Return false if already hit, indicating no new hit
+
+            IsHit = true;  // Mark the tile as hit
+
+            if (Ship != null)
+            {
+                Ship.Hit();  // Call the Hit method on the ship if there is one
+                return true;  // Return true indicating a hit
+            }
+
+            return false;  // Return false if there was no ship to hit
+        }
+
+
         public Point GetCursorLeftHalfLocation(int squareCoord, int shipSize)
         {
             // validates the ship size. The maximum ship size is 5.
