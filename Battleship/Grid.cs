@@ -251,42 +251,28 @@ namespace Battleship
         /// <returns>
         /// True if the GridTile clicked on is a hit, return False if it is a miss, return null if the current tile has already been shot, is null, or isn't on the 10x10 grid.
         ///</returns>
-        public bool? ShootAt(int x, int y, ShotType shotType)
+        // Normal shot method
+        public bool ShootAt(int x, int y)
         {
-            switch (shotType)
+            if (x >= 0 && x < Size && y >= 0 && y < Size)
             {
-                case ShotType.Normal:
-                    return ShootSingle(x, y);
-                case ShotType.Bomb3x3:
-                    return Shoot3x3(x, y);
-                case ShotType.VerticalStrip:
-                    return ShootVerticalStrip(x);
-                case ShotType.HorizontalStrip:
-                    return ShootHorizontalStrip(y);
-                default:
-                    return null;
+                return GridArray[x, y].Shoot();
             }
+            return false;
         }
 
-        private bool? ShootSingle(int x, int y)
-        {
-            // Implement shooting a single tile
-            return GridArray[x, y].Shoot();
-        }
-
-        private bool Shoot3x3(int x, int y)
+        public bool ShootBomb3x3(int x, int y)
         {
             bool hit = false;
-            for (int dx = -1; dx <= 1; dx++)
+            for (int i = -1; i <= 1; i++)
             {
-                for (int dy = -1; dy <= 1; dy++)
+                for (int j = -1; j <= 1; j++)
                 {
-                    int nx = x + dx;
-                    int ny = y + dy;
-                    if (nx >= 0 && nx < GridArray.GetLength(0) && ny >= 0 && ny < GridArray.GetLength(1))
+                    int targetX = x + i;
+                    int targetY = y + j;
+                    if (targetX >= 0 && targetX < Constants.GRID_SIZE && targetY >= 0 && targetY < Constants.GRID_SIZE)
                     {
-                        // Directly use the return value since it's not nullable
-                        hit |= GridArray[nx, ny].Shoot();
+                        hit |= ShootAt(targetX, targetY);
                     }
                 }
             }
@@ -294,30 +280,35 @@ namespace Battleship
         }
 
 
-
-        private bool ShootVerticalStrip(int x)
+        public bool ShootVerticalStrip(int column)
         {
             bool hit = false;
-            for (int y = 0; y < GridArray.GetLength(1); y++)
+            for (int i = 0; i < Constants.GRID_SIZE; i++)
             {
-                // Directly use the return value since it's not nullable
-                hit |= GridArray[x, y].Shoot();
+                hit |= ShootAt(column, i);  // ShootAt needs to be defined to handle shooting at a specific coordinate.
             }
             return hit;
         }
 
 
-        private bool ShootHorizontalStrip(int y)
+        public bool ShootHorizontalStrip(int row)
         {
             bool hit = false;
-            for (int x = 0; x < GridArray.GetLength(0); x++)
+            for (int i = 0; i < Constants.GRID_SIZE; i++)
             {
-                // Directly use the return value since it's not nullable
-                hit |= GridArray[x, y].Shoot();
+                hit |= ShootAt(i, row);
             }
             return hit;
         }
+
+        public bool Shoot()
+        {
+            Random random = new Random();
+            int x = random.Next(Constants.GRID_SIZE);
+            int y = random.Next(Constants.GRID_SIZE);
+            return ShootAt(x, y);  // Assumes ShootAt returns a bool indicating a hit or miss.
+        }
+
 
     }
 }
-

@@ -114,6 +114,8 @@ namespace Battleship
         ///</summary>
         public int P2HitLimit;
 
+        private MouseState previousMouseState;
+
         // Property to track the current type of shot selected by the player.
         public ShotType CurrentShotType { get; set; } = ShotType.Normal;
 
@@ -233,6 +235,8 @@ namespace Battleship
             _shipManager!.LoadContent(Content);
             _cursor.LoadContent(Content);
             _turnManager!.LoadContent(Content);
+            // Get the previous state of the mouse
+            previousMouseState = Mouse.GetState();
 
             SwapTexture = Content.Load<Texture2D>("swap"); // extra textures for when switching players
             feedbackFont = Content.Load<SpriteFont>("feedbackFont"); 
@@ -246,18 +250,50 @@ namespace Battleship
         /// <param name="gameTime">The current game time.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Get the  current state of the keyboard
-            KeyboardState state = Keyboard.GetState();
+            base.Update(gameTime); // Call the base class update to handle game framework updates
 
-            // Check for key presses to change the shot type
-            if (state.IsKeyDown(Keys.D1))
-                ChangeShotType(ShotType.Normal); // Press '1' for a normal shot
-            if (state.IsKeyDown(Keys.D2))
-                ChangeShotType(ShotType.Bomb3x3); // Press '2' for a 3x3 bomb
-            if (state.IsKeyDown(Keys.D3))
-                ChangeShotType(ShotType.VerticalStrip); // Press '3' for a vertical strip bomb
-            if (state.IsKeyDown(Keys.D4))
-                ChangeShotType(ShotType.HorizontalStrip); // Press '4' for a horizontal strip bomb
+            // Only run this logic if the game state indicates that gameplay is active
+            if (currentGameState == GameState.Playing)
+            {
+                var state = Keyboard.GetState();
+
+                // Handle shot type selection via keyboard
+                if (state.IsKeyDown(Keys.D1))
+                    CurrentShotType = ShotType.Normal;
+                if (state.IsKeyDown(Keys.D2))
+                    CurrentShotType = ShotType.Bomb3x3;
+                if (state.IsKeyDown(Keys.D3))
+                    CurrentShotType = ShotType.VerticalStrip;
+                if (state.IsKeyDown(Keys.D4))
+                    CurrentShotType = ShotType.HorizontalStrip;
+
+                var mouseState = Mouse.GetState();
+                // Checking if the left mouse button is pressed and that the player grid is not null
+                if (_player2grid != null && mouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released)
+                {
+                    // Calculate the x and y coordinates based on the mouse position, adjusting for the grid's offset and scale
+                    int x = (mouseState.X - Constants.PLAYER_2_OFFSET) / (Constants.SQUARE_SIZE * Constants.SCALE);
+                    int y = mouseState.Y / (Constants.SQUARE_SIZE * Constants.SCALE);
+
+                    bool hit = false;
+                    switch (CurrentShotType)
+                    {
+                        case ShotType.Normal:
+                            hit = _player2grid.ShootAt(x, y);
+                            break;
+                        case ShotType.Bomb3x3:
+                            hit = _player2grid.ShootBomb3x3(x, y);
+                            break;
+                        case ShotType.VerticalStrip:
+                            hit = _player2grid.ShootVerticalStrip(x);
+                            break;
+                        case ShotType.HorizontalStrip:
+                            hit = _player2grid.ShootHorizontalStrip(y);
+                            break;
+                    }
+                // Update the previous mouse state at the end of the update cycle
+                previousMouseState = mouseState;
+            }
             // Exit the game if the back button is pressed or the escape key is pressed.
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
@@ -462,6 +498,7 @@ namespace Battleship
 
             base.Update(gameTime); // Ensures the framework-level logic in the base class is updated.
         }
+    }
 
         /// <summary>
         /// Draws objects to the screen. Called constantly in a loop.
@@ -545,12 +582,17 @@ namespace Battleship
                 if (_shipManager!.ReadClick && mouseState.LeftButton == ButtonState.Pressed)
                 {
                     _shipManager.ReadClick = false; // Set the read click to false to prevent multiple shots per click.
+
+                    int x = (mouseState.X - Constants.PLAYER_2_OFFSET) / (Constants.SQUARE_SIZE * Constants.SCALE);
+                    int y = mouseState.Y / (Constants.SQUARE_SIZE * Constants.SCALE);
+
+
                     bool? success = false; // This variable will store the result of the shot. Initialized to false.
 
                     // Shoot the tile for the player whose turn it is.
                     if (_turnManager!.IsP1sTurn)
                     {
-                        success = _player2grid!.ShootAt();
+                        success = _player2grid!.ShootAt(x, y);
                         if (success == true)
                         {
                             P2HitLimit = P2HitLimit - 1; // Decrement the hit limit for player 2 if the shot was successful.
@@ -558,7 +600,7 @@ namespace Battleship
                     }
                     else
                     {
-                        success = _player1grid!.ShootAt();
+                        success = _player1grid!.ShootAt(x, y);
                         if (success == true)
                         {
                             P1HitLimit = P1HitLimit - 1; // Decrement the hit limit for player 1 if the shot was successful.

@@ -1,5 +1,17 @@
 # Changelog
 
+## September 28
+
+### Added
+
+
+
+## September 24
+
+### Added
+
+- Continued working on the special shot variants **(Andrew)**
+
 ## September 23
 
 ### Added
@@ -8,6 +20,7 @@
 - Implemented easy difficulty for AI **(Peter)**
 - Implemented hard difficulty for AI **(Peter)**
 - Implemented medium difficulty for AI **(Peter)**
+- Began implementation of special shot variants **(Andrew)**
 
 ## September 22
 
