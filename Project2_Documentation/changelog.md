@@ -1,16 +1,25 @@
 # Changelog
 
-## September 28
+## September 29
+
+### Updates
+
+- Added Proper documentaion across project **(Mikey)**
 
 ### Added
 
+- Implemented instructions menu to explain how everything about our game works **(Andrew)**
 
 
 ## September 24
 
+### Updates
+
+- Worked on UML Diagram for our custom idea of special shots, currently have the custom shot ideas for a 3x3 bomb, column carpet bomb, and row carpet bomb **(Jack)**
+
 ### Added
 
-- Continued working on the special shot variants **(Andrew)**
+- UML Diagram **(Jack)**
 
 ## September 23
 
@@ -27,8 +36,8 @@
 ### Added
 
 - Implemented feature so that users get better feedback when switching turns **(Mikey)**
-  - New waiting state in BattleshipGame.cs
-  - New background, font, and sprites
+  - New waiting state in BattleshipGame.cs **(Mikey)**
+  - New background, font, and sprites **(Mikey)**
 
 ## September 21
 
@@ -71,12 +80,3 @@
     \+ Person Hours record sheet
     \+ Documentation file
 
-## September 24
-
-### Updates
-
-- Worked on UML Diagram for our custom idea of special shots, currently have the custom shot ideas for a 3x3 bomb, column carpet bomb, and row carpet bomb **(Jack)**
-
-### Added
-
-- UML Diagram **(Jack)**
